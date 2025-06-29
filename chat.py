@@ -10,6 +10,7 @@ from util.cache_data import *
 from util.md import latex
 import copy
 from streamlit_echarts import st_echarts
+from streamlit_javascript import st_javascript
 
 # 设置 Streamlit 页面
 st.set_page_config(page_title="💬 Chat", layout="wide")
@@ -70,7 +71,8 @@ with st.sidebar:
     with slide_col1:
         if st.button("share",key="share"):
             cache_id = save_to_cache()
-            share_url = f"http://localhost:8501?c={cache_id}"
+            current_url = st_javascript("window.location.href")
+            share_url = f"{current_url}?c={cache_id}"
     if len(share_url) > 0:
         st.code(share_url)
 if len(openai_key) == 0:
