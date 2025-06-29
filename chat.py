@@ -24,6 +24,8 @@ system_prompt_ = ""
 branch_text_prompt = ""
 
 # 侧边栏模型参数
+current_url = st_javascript("window.location.href")
+base_url = str(current_url).split("?")[0].split("/component/")[0].split("/~/")[0]
 
 with st.sidebar:
     if "model_state" not in st.session_state:
@@ -71,10 +73,11 @@ with st.sidebar:
     with slide_col1:
         if st.button("share",key="share"):
             cache_id = save_to_cache()
-            current_url = st_javascript("window.location.href")
-            share_url = f"{current_url}?c={cache_id}"
-    if len(share_url) > 0:
-        st.code(share_url)
+            share_url = f"{base_url}?c={cache_id}"
+            st.session_state.model_state["share_url"] = share_url
+    if len(st.session_state.model_state.get("share_url","")) > 0:
+        st.code(st.session_state.model_state.get("share_url",""))
+    
 if len(openai_key) == 0:
     openai_key = api_model_card.get(model_version).get("openai_key")
 if len(openai_url) == 0:
@@ -243,11 +246,6 @@ if prompt := st.chat_input():
 
     # 渲染 ECharts 图表
     st.rerun()
-
-
-if st.slider:
-    if len(share_url) > 0:
-            st.code(share_url)
 
 
 
