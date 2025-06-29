@@ -20,6 +20,6 @@ def remove_markdown_links(text: str) -> str:
     return text
 
 def latex(text:str) -> str:
-    return text.replace('\\(', "$").replace('\\)', "$").replace('\\[', "$$").replace('\\]', "$$").replace("~","\~")
+    return text.replace('\\(', "$").replace('\\)', "$").replace('\\[', "$$").replace('\\]', "$$")
 
 
