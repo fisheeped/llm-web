@@ -17,8 +17,8 @@ st.set_page_config(page_title="💬 Chat", layout="wide")
 st.logo(image="assets/kl.png", size="large", icon_image="assets/kl.png")
 
 
-st.title("💬 Chat")
-st.caption("🚀 来和我对话吧")
+st.title("💬工会 AI-Bot")
+st.caption("🚀 来和小云对话吧")
 system_prompt_ = ""
 
 branch_text_prompt = ""
@@ -245,8 +245,9 @@ if prompt := st.chat_input():
     st.rerun()
 
 
-
-
+if st.slider:
+    if len(share_url) > 0:
+            st.code(share_url)
 
 
 

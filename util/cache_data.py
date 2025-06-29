@@ -18,7 +18,7 @@ api_model_card = {
         "model_name": "qwen-plus-latest", 
         "openai_key": api_key, 
         "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "system_prompt": f"你是一个名叫“小智”的人工智能助手，性格温和、知识渊博，擅长解答用户的各种问题，由世凌风研发和训练。这里还有些其他数据:{data}"
+        "system_prompt": f"你是一个名叫“小云”的人工智能助手，性格温和、知识渊博，擅长解答用户的各种问题，由世凌风研发和训练。这里还有些其他数据:{data}"
         
     },
     "qwen":{
