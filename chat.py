@@ -54,7 +54,7 @@ with st.sidebar:
     st.session_state.model_state["openai_url"] = openai_url
     st.session_state.model_state["custom_model"] = custom_model
     st.session_state.model_state["temperature"] = temperature
-    st.session_state.model_state["thinking"] = thinking
+    st.session_state.model_state["thinking"] = thinking 
     st.session_state.model_state["stream"] = stream
     # st.session_state.model_state["system_prompt"] = system_prompt_
     st.session_state.model_state["text_prompt"] = text_prompt
@@ -167,8 +167,9 @@ for i, msg in enumerate(st.session_state.messages):
 def stream_chat():
     start_time = time.time()  # 记录开始时间
     model_ = model_name.rsplit("-test", 1)[0]
-    messages_ = [{"role":"system", "content": system_prompt_}]
-    messages_.extend(copy.deepcopy(st.session_state.messages))
+    messages_:list = copy.deepcopy(st.session_state.messages)
+    if isinstance(system_prompt_, str) and len(system_prompt_) > 0: 
+        messages_.insert({"role":"system", "content": system_prompt_})
     data = {
         "model": model_,
         "messages": messages_,

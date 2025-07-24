@@ -4,6 +4,8 @@ import json5 as json
 import time
 import streamlit as st
 import os
+from dotenv import load_dotenv
+load_dotenv() 
 
 
 with open("assets/data.json","r",encoding= 'utf-8') as f:
