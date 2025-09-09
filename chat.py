@@ -169,7 +169,7 @@ def stream_chat():
     model_ = model_name.rsplit("-test", 1)[0]
     messages_:list = copy.deepcopy(st.session_state.messages)
     if isinstance(system_prompt_, str) and len(system_prompt_) > 0: 
-        messages_.insert({"role":"system", "content": system_prompt_})
+        messages_.insert(0, {"role":"system", "content": system_prompt_})
     data = {
         "model": model_,
         "messages": messages_,
