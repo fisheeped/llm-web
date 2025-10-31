@@ -8,26 +8,40 @@ from dotenv import load_dotenv
 load_dotenv() 
 
 
-with open("assets/data.json","r",encoding= 'utf-8') as f:
-    data = f.read()
+# with open("assets/data.json","r",encoding= 'utf-8') as f:
+#     data = f.read()
 
-base_dir = "/mnt/nodestor/cluster_share_folder/user-fs/train/yuyang"
+base_dir = ""
 model_name = "yy"
 
 api_key = os.environ.get("API_KEY", "")
+base_url = os.environ.get("BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+
+model_name_1 = os.environ.get("MODEL_NAME_1", "None")
+api_key_1 = os.environ.get("API_KEY_1", "")
+base_url_1 = os.environ.get("BASE_URL_1", "")
+
+model_name_2 = os.environ.get("MODEL_NAME_2", "")
+api_key_2 = os.environ.get("API_KEY_2", "")
+base_url_2 = os.environ.get("BASE_URL_2", "")
+
+
 api_model_card = {
-    "qwen-plus-lingfeng":{
-        "model_name": "qwen-plus-latest", 
-        "openai_key": api_key, 
-        "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "system_prompt": f"你是一个名叫“小云”的人工智能助手，性格温和、知识渊博，擅长解答用户的各种问题，由世凌风研发和训练。这里还有些其他数据:{data}"
-        
+    model_name_2:{
+        "model_name": model_name_2,
+        "openai_key": api_key_2, 
+        "api_url": base_url_2
     },
-    "qwen":{
-        "model_name": "qwen-plus-latest",
+    "claude-sonnet-4-5-20250929":{
+        "model_name": "claude-sonnet-4-5-20250929",
         "openai_key": api_key, 
-        "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    }
+        "api_url": base_url
+    },
+    model_name_1:{
+        "model_name": model_name_1,
+        "openai_key": api_key_1, 
+        "api_url": base_url_1
+    },
 }
 
 

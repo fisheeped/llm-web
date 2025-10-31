@@ -17,7 +17,7 @@ st.set_page_config(page_title="💬 Chat", layout="wide")
 st.logo(image="assets/kl.png", size="large", icon_image="assets/kl.png")
 
 
-st.title("💬工会 AI-Bot")
+st.title("💬AI-Bot")
 st.caption("🚀 来和小云对话吧")
 system_prompt_ = ""
 
@@ -33,7 +33,7 @@ with st.sidebar:
     index = openai_model_list.index(st.session_state.model_state.get("model_version",openai_model_list[0]))
     model_version:str = st.selectbox("model",openai_model_list, index=index) # type: ignore
     model_name = api_model_card.get(model_version).get("model_name")
-    system_prompt_ = api_model_card.get(model_version).get("system_prompt")
+    system_prompt = api_model_card.get(model_version).get("system_prompt","")
 
     with st.expander("model api"):
         custom_model = st.text_input("api_model", st.session_state.model_state.get("custom_model", "") ,help="覆盖上面的Model")
@@ -43,7 +43,7 @@ with st.sidebar:
         temperature = st.number_input("temperature",min_value=0.0,max_value=2.0,value=st.session_state.model_state.get("temperature", 0.1),step=0.01)
         thinking = st.checkbox('thinking', value= st.session_state.model_state.get("thinking", False))
         stream = st.checkbox('stream', value=st.session_state.model_state.get("stream", True))
-        # system_prompt_ = st.text_input('system_prompt',st.session_state.model_state.get("system_prompt", ""), help = "设置后需要清空历史记录")
+        system_prompt_ = st.text_input('system_prompt',st.session_state.model_state.get("system_prompt", ""), help = "设置后需要清空历史记录")
         if "model_state" in st.session_state:
             if len(st.session_state.model_state.get("text_prompt","").strip()) > 1:
                 branch_text_prompt = st.session_state.model_state["text_prompt"]
@@ -56,7 +56,7 @@ with st.sidebar:
     st.session_state.model_state["temperature"] = temperature
     st.session_state.model_state["thinking"] = thinking 
     st.session_state.model_state["stream"] = stream
-    # st.session_state.model_state["system_prompt"] = system_prompt_
+    st.session_state.model_state["system_prompt"] = system_prompt_
     st.session_state.model_state["text_prompt"] = text_prompt
 
 
@@ -67,7 +67,6 @@ with st.sidebar:
     with slide_col0:
         if st.button('clear'):
             st.session_state.messages = []
-            st.rerun()
     
     share_url = ""
     with slide_col1:
@@ -83,15 +82,16 @@ if len(openai_key) == 0:
 if len(openai_url) == 0:
     openai_url = api_model_card.get(model_version).get("api_url")
 if len(custom_model) > 0:
-    model_version = custom_model
+    model_name = custom_model
+if len(system_prompt_) > 2:
+    system_prompt = system_prompt_
+
+
 
 post_url = f"{openai_url}/chat/completions"
 # 初始化会话消息
 if "messages" not in st.session_state:
-    if len(system_prompt_) > 2:
-        st.session_state["messages"] = [{"role":"system", "content": system_prompt_}]
-    else:
-        st.session_state["messages"] = []
+    st.session_state.messages = []
 
 
 # 存储响应内容
@@ -168,8 +168,8 @@ def stream_chat():
     start_time = time.time()  # 记录开始时间
     model_ = model_name.rsplit("-test", 1)[0]
     messages_:list = copy.deepcopy(st.session_state.messages)
-    if isinstance(system_prompt_, str) and len(system_prompt_) > 0: 
-        messages_.insert({"role":"system", "content": system_prompt_})
+    if isinstance(system_prompt, str) and len(system_prompt) > 0: 
+        messages_.insert(0,{"role":"system", "content": system_prompt})
     data = {
         "model": model_,
         "messages": messages_,
@@ -194,10 +194,23 @@ def stream_chat():
     expander_opened_control = True  # 结论生成时只关闭一次
     # 生成格式化时间
     formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
+
+    file_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")  # 微秒级精度，确保唯一
+    log_dir = "logs"
+    log_file = os.path.join(log_dir, f"{file_time}-chat.log")
+    f =  open(log_file, 'a', encoding='utf-8') 
+    f.write(f"=== REQUEST [{formatted_time}] ===\n")
+    f.write(f"URL: {post_url}\n")
+    f.write(f"Headers: {json.dumps(headers, ensure_ascii=False, indent=2)}\n")
+    f.write(f"Body: {json.dumps(data, ensure_ascii=False, indent=2)}\n")
+    f.write("\n" + "="*60 + "\n\n")
+
     # 发送请求
     response = requests.post(post_url, headers=headers, json=data, stream=stream)
     for line in response.iter_lines():
+        f.write(line.decode("utf-8"))
+        f.write("\n")
         decoded_line = line.decode("utf-8").strip()
         if len(line) < 1: continue
         if not decoded_line.startswith("data: {"): break
@@ -225,6 +238,9 @@ def stream_chat():
             
         except Exception as e:
             print(e, line)
+
+    f.write("\n" + "="*60 + "\n")
+    f.close()
     elapsed_time = time.time() - start_time
     total_time_display = f"(Time taken: {elapsed_time:.2f} seconds)"
     # 如果思考内容有更新，加入到消息中
