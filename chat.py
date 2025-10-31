@@ -18,7 +18,6 @@ st.logo(image="assets/kl.png", size="large", icon_image="assets/kl.png")
 
 
 st.title("💬AI-Bot")
-st.caption("🚀 来和小云对话吧")
 system_prompt_ = ""
 
 branch_text_prompt = ""
