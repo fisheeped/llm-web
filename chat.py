@@ -271,8 +271,4 @@ if 'c' in st.query_params:
     load_from_cache(cache_id)
     st.query_params.pop('c')
     st.rerun()
-# 清除缓存文件（可选）
-def clear_cache_files():
-    for file in os.listdir(".cache"):
-        if file.startswith("cache_") and file.endswith(".json"):
-            os.remove(file)
+

@@ -4,6 +4,9 @@ import json5 as json
 import time
 import streamlit as st
 import os
+import pickle
+
+
 from dotenv import load_dotenv
 load_dotenv() 
 
@@ -56,22 +59,28 @@ qwen3_no_thinking_template = "{%- if tools %}\n    {{- '<|im_start|>system\\n' }
 # 保存session state到缓存文件
 def save_to_cache():
     cache_id = f"{str(time.time())}{str(uuid.uuid4())}"
-    cache_file = f".cache/cache_{cache_id}.json"
-    with open(cache_file, 'w') as f:
-        cache_data = {
+    cache_file = f".cache/cache_{cache_id}.pkl"
+    cache_data = {
             "messages": st.session_state.messages,
             "model_state": st.session_state.model_state
         }
-        json.dump(cache_data, f)
+    with open(cache_file, 'wb') as f:
+        pickle.dump(cache_data, f)
     return cache_id
-
 # 加载缓存文件到session state
 def load_from_cache(cache_id):
-    cache_file_ = f".cache/cache_{cache_id}.json"
-    if os.path.exists(cache_file_):
-        with open(cache_file_, 'r') as f:
-            cache_data = json.load(f)
+    cache_file = f".cache/cache_{cache_id}.pkl"
+    if os.path.exists(cache_file):
+        with open(cache_file, 'rb') as f:
+            cache_data = pickle.load(f)
             st.session_state.messages = cache_data['messages']
             st.session_state.model_state = cache_data['model_state']
     else:
         st.error("链接不存在或者，已经被取消了")
+
+
+# 清除缓存文件（可选）
+def clear_cache_files():
+    for file in os.listdir(".cache"):
+        if file.startswith("cache_"):
+            os.remove(file)
