@@ -15,8 +15,7 @@ load_dotenv()
 #     data = f.read()
 
 base_dir = ""
-model_name = "yy"
-
+model_name = os.environ.get("MODEL_NAME", "Qwen3-Next")
 api_key = os.environ.get("API_KEY", "")
 base_url = os.environ.get("BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
@@ -30,12 +29,7 @@ base_url_2 = os.environ.get("BASE_URL_2", "")
 
 
 api_model_card = {
-    model_name_2:{
-        "model_name": model_name_2,
-        "openai_key": api_key_2, 
-        "api_url": base_url_2
-    },
-    "claude-sonnet-4-5-20250929":{
+    model_name:{
         "model_name": "claude-sonnet-4-5-20250929",
         "openai_key": api_key, 
         "api_url": base_url
@@ -45,6 +39,11 @@ api_model_card = {
         "openai_key": api_key_1, 
         "api_url": base_url_1
     },
+    model_name_2:{
+        "model_name": model_name_2,
+        "openai_key": api_key_2, 
+        "api_url": base_url_2
+    }
 }
 
 
