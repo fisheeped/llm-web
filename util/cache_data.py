@@ -30,7 +30,7 @@ base_url_2 = os.environ.get("BASE_URL_2", "")
 
 api_model_card = {
     model_name:{
-        "model_name": "claude-sonnet-4-5-20250929",
+        "model_name": model_name,
         "openai_key": api_key, 
         "api_url": base_url
     },

@@ -177,10 +177,10 @@ def stream_chat():
     }
     if len(text_prompt.strip()) > 1:
         data["messages"][-1]["content"]= text_prompt.replace("{{ query }}",data["messages"][-1]["content"])
-    if not thinking and model_.startswith("Qwen3"):
-        if not data["messages"][-1]["content"].rstrip().endswith("/no_think"):
-            query_ = data["messages"][-1]["content"]
-            data["messages"][-1]["content"] = f"{query_} /no_think"
+    # if not thinking and model_.startswith("Qwen3-32B"):
+    #     if not data["messages"][-1]["content"].rstrip().endswith("/no_think"):
+    #         query_ = data["messages"][-1]["content"]
+    #         data["messages"][-1]["content"] = f"{query_} /no_think"
         # data["chat_template"] = qwen3_no_thinking_template
     headers = {
         "Content-Type": "application/json",
