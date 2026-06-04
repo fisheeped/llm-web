@@ -13,11 +13,11 @@ from streamlit_echarts import st_echarts
 from streamlit_javascript import st_javascript
 
 # 设置 Streamlit 页面
-st.set_page_config(page_title="💬 Chat", layout="wide")
+st.set_page_config(page_title="💬Novel Chat", layout="wide")
 st.logo(image="assets/kl.png", size="large", icon_image="assets/kl.png")
 
 
-st.title("💬AI-Bot")
+st.title("💬Novel-Bot")
 system_prompt_ = ""
 
 branch_text_prompt = ""
@@ -32,7 +32,7 @@ with st.sidebar:
     index = openai_model_list.index(st.session_state.model_state.get("model_version",openai_model_list[0]))
     model_version:str = st.selectbox("model",openai_model_list, index=index) # type: ignore
     model_name = api_model_card.get(model_version).get("model_name")
-    system_prompt = api_model_card.get(model_version).get("system_prompt","")
+    system_prompt = api_model_card.get(model_version).get("system_prompt",system_prompt_)
 
     with st.expander("model api"):
         custom_model = st.text_input("api_model", st.session_state.model_state.get("custom_model", "") ,help="覆盖上面的Model")
@@ -42,12 +42,6 @@ with st.sidebar:
         temperature = st.number_input("temperature",min_value=0.0,max_value=2.0,value=st.session_state.model_state.get("temperature", 0.1),step=0.01)
         thinking = st.checkbox('thinking', value= st.session_state.model_state.get("thinking", False))
         stream = st.checkbox('stream', value=st.session_state.model_state.get("stream", True))
-        # 保留换行等格式
-        system_prompt_ = st.text_area('system_prompt',st.session_state.model_state.get("system_prompt", ""), help = "设置后需要清空历史记录")
-        if "model_state" in st.session_state:
-            if len(st.session_state.model_state.get("text_prompt","").strip()) > 1:
-                branch_text_prompt = st.session_state.model_state["text_prompt"]
-        text_prompt = st.text_area('text_prompt',branch_text_prompt, help = "设置后需要清空历史记录")
     
     st.session_state.model_state["model_version"] = model_version
     st.session_state.model_state["openai_key"] = openai_key
@@ -57,7 +51,6 @@ with st.sidebar:
     st.session_state.model_state["thinking"] = thinking 
     st.session_state.model_state["stream"] = stream
     st.session_state.model_state["system_prompt"] = system_prompt_
-    st.session_state.model_state["text_prompt"] = text_prompt
 
 
     with st.expander("output args"):
@@ -116,36 +109,20 @@ def messages_filter(messages):
     return msgs
 
 
+# 从导数第二轮对话开始限制
+msg_nums = len(st.session_state.messages) - 2 
 
 for i, msg in enumerate(st.session_state.messages):
     if msg["role"] != "system":
         with st.chat_message(msg["role"]):
-            options = None
             if msg["role"] == "think":
                 with st.expander(f"🧐", expanded=st.session_state.expander_opened):
                     st.write(msg["content"])
             else:
                 if msg["role"] == "assistant":
-                    if not json_output:
-                        echart_data = getcode(msg["content"], mode="echarts")
-                        if echart_data is not None:
-                            options = get_repair_json(echart_data)
-                    else:
-                        echart_data = getcode(msg["content"])
-                        if echart_data is not None:
-                            options = get_repair_json(echart_data)
-                if options and not json_output:
-                    fe = msg["content"].split(echart_data)
-                    st.write(latex(fe[0].split("```")[0]))
-                    st_echarts(options, height="500px", key=f"echarts_{i}")
-                    st.write(latex(fe[1].split("```")[-1]))
-                elif options and json_output:
-                    fe = msg["content"].split(echart_data)
-                    st.write(latex(fe[0].split("```")[0]))
-                    st.json(options)
-                    st.write(latex(fe[1].split("```")[-1]))
-                else:
-                    st.write(latex(msg["content"]))
+                    if i < msg_nums:
+                        msg["content"] = msg["content"].split("```background")[-1])
+                st.write(latex(msg["content"]))
             elapsed_time = msg.get("elapsed_time","")
             with st.expander(f"editor\t\t\t\t{elapsed_time}"):
                 new_content = st.text_area(label=f"msg-{i}",key = f"msg-{i}", value=msg["content"])
@@ -176,13 +153,6 @@ def stream_chat():
         "temperature": temperature,
         "stream": stream
     }
-    if len(text_prompt.strip()) > 1:
-        data["messages"][-1]["content"]= text_prompt.replace("{{ query }}",data["messages"][-1]["content"])
-    # if not thinking and model_.startswith("Qwen3-32B"):
-    #     if not data["messages"][-1]["content"].rstrip().endswith("/no_think"):
-    #         query_ = data["messages"][-1]["content"]
-    #         data["messages"][-1]["content"] = f"{query_} /no_think"
-        # data["chat_template"] = qwen3_no_thinking_template
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {openai_key}",
@@ -218,7 +188,8 @@ def stream_chat():
             data = json.loads(decoded_line[6:])
             delta = data["choices"][0]["delta"]
             if "content" in delta:
-                st.session_state.content += delta["content"]
+                if delta['content']:
+                    st.session_state.content += delta["content"]
             # 兼容硅基流动格式，额外传输空数据串导致分支bug
             if "reasoning_content" in delta:
                 st.session_state.reasoning_content += delta["reasoning_content"]
