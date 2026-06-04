@@ -42,7 +42,8 @@ with st.sidebar:
         temperature = st.number_input("temperature",min_value=0.0,max_value=2.0,value=st.session_state.model_state.get("temperature", 0.1),step=0.01)
         thinking = st.checkbox('thinking', value= st.session_state.model_state.get("thinking", False))
         stream = st.checkbox('stream', value=st.session_state.model_state.get("stream", True))
-        system_prompt_ = st.text_input('system_prompt',st.session_state.model_state.get("system_prompt", ""), help = "设置后需要清空历史记录")
+        # 保留换行等格式
+        system_prompt_ = st.text_area('system_prompt',st.session_state.model_state.get("system_prompt", ""), help = "设置后需要清空历史记录")
         if "model_state" in st.session_state:
             if len(st.session_state.model_state.get("text_prompt","").strip()) > 1:
                 branch_text_prompt = st.session_state.model_state["text_prompt"]
@@ -218,7 +219,8 @@ def stream_chat():
             delta = data["choices"][0]["delta"]
             if "content" in delta:
                 st.session_state.content += delta["content"]
-            elif "reasoning_content" in delta:
+            # 兼容硅基流动格式，额外传输空数据串导致分支bug
+            if "reasoning_content" in delta:
                 st.session_state.reasoning_content += delta["reasoning_content"]
             elapsed_time = time.time() - start_time
             # 计算时间开销
