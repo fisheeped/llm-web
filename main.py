@@ -121,7 +121,7 @@ for i, msg in enumerate(st.session_state.messages):
             else:
                 if msg["role"] == "assistant":
                     if i < msg_nums:
-                        msg["content"] = msg["content"].split("```background")[-1])
+                        msg["content"] = msg["content"].rsplit("```background",1)[0]
                 st.write(latex(msg["content"]))
             elapsed_time = msg.get("elapsed_time","")
             with st.expander(f"editor\t\t\t\t{elapsed_time}"):
