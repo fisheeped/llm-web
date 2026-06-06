@@ -21,12 +21,12 @@ system_prompt = os.environ.get("SYSTEM_PROMPT", "")
 model_name_1 = os.environ.get("MODEL_NAME_1", "None")
 api_key_1 = os.environ.get("API_KEY_1", "")
 base_url_1 = os.environ.get("BASE_URL_1", "")
-system_prompt_1 = os.environ.get("SYSTEM_PROMPT_1", "")
+system_prompt_1 = os.environ.get("SYSTEM_PROMPT_1", system_prompt)
 
 model_name_2 = os.environ.get("MODEL_NAME_2", "")
 api_key_2 = os.environ.get("API_KEY_2", "")
 base_url_2 = os.environ.get("BASE_URL_2", "")
-system_prompt_2 = os.environ.get("SYSTEM_PROMPT_2", "")
+system_prompt_2 = os.environ.get("SYSTEM_PROMPT_2", system_prompt)
 
 
 api_model_card = {
@@ -40,13 +40,13 @@ api_model_card = {
         "model_name": model_name_1,
         "openai_key": api_key_1, 
         "api_url": base_url_1,
-        "system_prompt_1":system_prompt_1
+        "system_prompt":system_prompt_1
     },
     model_name_2:{
         "model_name": model_name_2,
         "openai_key": api_key_2, 
         "api_url": base_url_2,
-        "system_prompt_2":system_prompt_2
+        "system_prompt":system_prompt_2
     }
 }
 

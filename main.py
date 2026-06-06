@@ -9,7 +9,6 @@ from util.strings import getcode,get_repair_json
 from util.cache_data import *
 from util.md import latex
 import copy
-from streamlit_echarts import st_echarts
 from streamlit_javascript import st_javascript
 
 # 设置 Streamlit 页面
@@ -42,7 +41,7 @@ with st.sidebar:
         temperature = st.number_input("temperature",min_value=0.0,max_value=2.0,value=st.session_state.model_state.get("temperature", 0.1),step=0.01)
         thinking = st.checkbox('thinking', value= st.session_state.model_state.get("thinking", False))
         stream = st.checkbox('stream', value=st.session_state.model_state.get("stream", True))
-    
+
     st.session_state.model_state["model_version"] = model_version
     st.session_state.model_state["openai_key"] = openai_key
     st.session_state.model_state["openai_url"] = openai_url
@@ -102,15 +101,20 @@ if 'expander_opened' not in st.session_state:
 
 def messages_filter(messages):
     """只保留这三个角色"system","user","assistant" """
+    # 从导数第二轮对话开始限制
+    msg_nums = len(messages) - 2 
     msgs = []
-    for i in messages:
-        if i.get("role") in ["system","user","assistant"]:
-            msgs.append(i)
+    for i,msg in enumerate(messages):
+        if msg["role"] == "assistant":
+            # 去掉状态，省token
+            if i < msg_nums:
+                msg["content"] = msg["content"].rsplit("```background",1)[0]
+        if msg.get("role") in ['system', 'user','assistant', 'tool', 'function']:
+            msgs.append(msg)
     return msgs
 
 
-# 从导数第二轮对话开始限制
-msg_nums = len(st.session_state.messages) - 2 
+
 
 for i, msg in enumerate(st.session_state.messages):
     if msg["role"] != "system":
@@ -119,9 +123,6 @@ for i, msg in enumerate(st.session_state.messages):
                 with st.expander(f"🧐", expanded=st.session_state.expander_opened):
                     st.write(msg["content"])
             else:
-                if msg["role"] == "assistant":
-                    if i < msg_nums:
-                        msg["content"] = msg["content"].rsplit("```background",1)[0]
                 st.write(latex(msg["content"]))
             elapsed_time = msg.get("elapsed_time","")
             with st.expander(f"editor\t\t\t\t{elapsed_time}"):
@@ -144,15 +145,19 @@ for i, msg in enumerate(st.session_state.messages):
 def stream_chat():
     start_time = time.time()  # 记录开始时间
     model_ = model_name.rsplit("-test", 1)[0]
-    messages_:list = copy.deepcopy(st.session_state.messages)
+    # messages_:list = copy.deepcopy(st.session_state.messages)
+    messages_:list = messages_filter(st.session_state.messages)
     if isinstance(system_prompt, str) and len(system_prompt) > 0: 
         messages_.insert(0,{"role":"system", "content": system_prompt})
+    
     data = {
         "model": model_,
         "messages": messages_,
         "temperature": temperature,
-        "stream": stream
+        "stream": stream,
+        "enable_thinking": thinking
     }
+    
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {openai_key}",

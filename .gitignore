@@ -36,3 +36,6 @@ coverage
 test
 .venv
 .env
+
+assets/prompt.md
+.vscode/
