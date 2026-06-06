@@ -15,18 +15,18 @@ base_dir = ""
 model_name = os.environ.get("MODEL_NAME", "Qwen3-Next")
 api_key = os.environ.get("API_KEY", "")
 base_url = os.environ.get("BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-system_prompt = os.environ.get("SYSTEM_PROMT", "")
+system_prompt = os.environ.get("SYSTEM_PROMPT", "")
 
 
 model_name_1 = os.environ.get("MODEL_NAME_1", "None")
 api_key_1 = os.environ.get("API_KEY_1", "")
 base_url_1 = os.environ.get("BASE_URL_1", "")
-system_prompt_1 = os.environ.get("SYSTEM_PROMT_1", "")
+system_prompt_1 = os.environ.get("SYSTEM_PROMPT_1", "")
 
 model_name_2 = os.environ.get("MODEL_NAME_2", "")
 api_key_2 = os.environ.get("API_KEY_2", "")
 base_url_2 = os.environ.get("BASE_URL_2", "")
-system_prompt_2 = os.environ.get("SYSTEM_PROMT_2", "")
+system_prompt_2 = os.environ.get("SYSTEM_PROMPT_2", "")
 
 
 api_model_card = {
